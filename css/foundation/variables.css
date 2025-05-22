@@ -8,3 +8,15 @@
     --gap: 1rem;
     --transition: 0.2s ease;
 }
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+    /* sits above the background (-1) */
+}

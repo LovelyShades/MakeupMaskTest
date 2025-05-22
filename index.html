@@ -5,71 +5,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>ml5 FaceMesh + 3D Mask Overlay</title>
+    <!-- Your main styles -->
     <link rel="stylesheet" href="css/main.css" />
+
 
 </head>
 
 <body>
-    <h1>3D Makeup Mask Tester</h1>
-
-    <!-- TOP CONTROLS -->
-    <div class="controls-top">
-        <label>
-            Import Face Image:
-            <input id="faceInput" type="file" accept="image/*" />
-        </label>
-        <button id="removeFaceBtn" style="display:none;">Remove Face</button>
-
-        <label style="margin-left:1rem;">
-            Import Mask PNG:
-            <input id="maskInput" type="file" accept="image/png" />
-        </label>
-        <button id="removeMaskBtn" style="display:none; margin-left:.5rem;">Remove Mask</button>
+    <!-- full-screen background + overlay -->
+    <div class="image-container">
+        <img src="background.jpg" alt="Background" />
+        <!-- only if using gradient-bg.css glass-overlay: -->
+        <div class="glass-overlay"></div>
     </div>
 
-    <!-- GO BUTTON -->
-    <div class="controls-go" style="margin:1rem 0;">
-        <button id="goBtn">Apply Mask</button>
-    </div>
+    <!-- everything below lives in this wrapper so it’s above the background -->
+    <div class="content-wrapper">
+        <h1>3D Makeup Mask Tester</h1>
 
-    <!-- SHOW MESH TOGGLE -->
-    <div class="controls-toggle" style="margin-bottom:1rem;">
-        <label>
-            <input type="checkbox" id="meshToggle" checked />
-            Show Mesh Overlay
-        </label>
-    </div>
+        <!-- TOP CONTROLS -->
+        <div class="controls-top">
+            <label>
+                Import Face Image:
+                <input id="faceInput" type="file" accept="image/*" />
+            </label>
+            <button id="removeFaceBtn" style="display:none;">Remove Face</button>
 
-    <!-- MODE BUTTONS AND CLEAR ALL -->
-    <div class="controls-bottom">
-        <div class="mode-controls" style="display:inline-block; margin-right:1rem;">
-            <button id="sideBySideBtn" class="active">Side-by-Side</button>
-            <button id="beforeAfterBtn">Before/After</button>
+            <label style="margin-left:1rem;">
+                Import Mask PNG:
+                <input id="maskInput" type="file" accept="image/png" />
+            </label>
+            <button id="removeMaskBtn" style="display:none; margin-left:.5rem;">Remove Mask</button>
         </div>
-        <button id="clearAllBtn">Clear All</button>
-    </div>
 
-    <!-- CANVAS LAYOUT -->
-    <div class="canvas_container">
-        <canvas id="previewCanvas" class="canvas"></canvas>
-        <canvas id="previewCanvas2" class="canvas"></canvas>
-    </div>
-
-    <div class="before-after_wrapper" style="display:none;">
-        <div class="before-after_container">
-            <canvas id="baBefore" class="canvas"></canvas>
-            <canvas id="baAfter" class="canvas overlay"></canvas>
-            <input type="range" id="baSlider" min="0" max="100" value="50" />
+        <!-- GO BUTTON -->
+        <div class="controls-go" style="margin:1rem 0;">
+            <button id="goBtn">Apply Mask</button>
         </div>
-    </div>
 
-    <div id="three"></div>
+        <!-- SHOW MESH TOGGLE -->
+        <div class="controls-toggle" style="margin-bottom:1rem;">
+            <label>
+                <input type="checkbox" id="meshToggle" checked />
+                Show Mesh Overlay
+            </label>
+        </div>
+
+        <!-- MODE BUTTONS AND CLEAR ALL -->
+        <div class="controls-bottom">
+            <div class="mode-controls" style="display:inline-block; margin-right:1rem;">
+                <button id="sideBySideBtn" class="active">Side-by-Side</button>
+                <button id="beforeAfterBtn">Before/After</button>
+            </div>
+            <button id="clearAllBtn">Clear All</button>
+        </div>
+
+        <!-- CANVAS LAYOUT -->
+        <div class="canvas_container">
+            <canvas id="previewCanvas" class="canvas"></canvas>
+            <canvas id="previewCanvas2" class="canvas"></canvas>
+        </div>
+
+        <div class="before-after_wrapper" style="display:none;">
+            <div class="before-after_container">
+                <canvas id="baBefore" class="canvas"></canvas>
+                <canvas id="baAfter" class="canvas overlay"></canvas>
+                <input type="range" id="baSlider" min="0" max="100" value="50" />
+            </div>
+        </div>
+
+        <div id="three"></div>
+    </div><!-- /.content-wrapper -->
 
     <!-- Libraries -->
     <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
-
-
-    <!-- Modular App Entry -->
+    <!-- App Entry -->
     <script type="module" src="./js/app.js"></script>
 </body>
 
