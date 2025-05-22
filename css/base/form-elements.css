@@ -1,0 +1,5 @@
+/* form-elements.css */
+input[type="file"],
+input[type="range"] {
+    cursor: pointer;
+}

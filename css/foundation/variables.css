@@ -1,0 +1,10 @@
+/* variables.css */
+:root {
+    --color-primary: #1e3c72;
+    --color-secondary: #2a5298;
+    --color-accent: #e52d27;
+    --font-base: 'Inter', sans-serif;
+    --radius: 0.5rem;
+    --gap: 1rem;
+    --transition: 0.2s ease;
+}

@@ -1,0 +1,18 @@
+/* button.css */
+button {
+    margin: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    background: #fff;
+    color: var(--color-primary);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+
+button:hover,
+button.active {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}

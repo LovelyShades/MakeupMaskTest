@@ -1,0 +1,5 @@
+/* gradient-bg.css */
+body {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+    background-size: 400% 400%;
+}

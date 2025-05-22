@@ -1,0 +1,29 @@
+/* canvas-frame.css */
+.canvas,
+#baBefore,
+#baAfter {
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 40vw;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+#baBefore {
+    position: relative;
+    z-index: 1;
+}
+
+#baAfter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+.before-after_container canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}

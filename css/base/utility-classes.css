@@ -1,0 +1,10 @@
+/* utility-classes.css */
+.hide {
+    display: none !important;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

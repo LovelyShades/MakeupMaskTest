@@ -1,0 +1,28 @@
+/* css/main.css */
+
+/* 1. Foundation: resets & variables */
+@import 'foundation/reset.css';
+@import 'foundation/variables.css';
+@import 'foundation/fonts.css';
+
+/* 2. Base element styles */
+@import 'base/typography.css';
+@import 'base/form-elements.css';
+@import 'base/utility-classes.css';
+
+/* 3. Layout wrappers & grid */
+@import 'layout/wrappers.css';
+@import 'layout/grid-system.css';
+
+/* 4. Components */
+@import 'components/button.css';
+@import 'components/slider.css';
+@import 'components/canvas-frame.css';
+
+/* 5. Themes */
+@import 'themes/gradient-bg.css';
+/* @import 'themes/dark-mode.css'; */
+/* Uncomment when you add dark mode */
+
+/* 6. Motion & animations */
+@import 'motion/animations.css';
