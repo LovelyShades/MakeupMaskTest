@@ -109,8 +109,139 @@ button:hover {
 
 /* overlay width will be driven by JS via style.width */
 
-#baSlider {
-    margin-top: calc(40vw + 1rem);
-    width: 80vw;
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298, #e52d27);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+h1 {
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+label {
+    margin: .5rem;
+    display: inline-block;
+}
+
+button {
+    margin: .5rem;
+    padding: .75rem 1.5rem;
+    font-weight: 600;
+    background: #fff;
+    color: #1e3c72;
+    border: none;
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: background .2s, transform .2s;
+}
+
+button.active,
+button:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+.mode-controls {
+    margin: 1rem;
+}
+
+.canvas_container,
+.before-after_wrapper {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    max-width: 100vw;
+    max-height: calc(100vh - 200px);
+    overflow: auto;
+    margin: 0 auto 1rem;
+}
+
+.canvas,
+#baBefore,
+#baAfter {
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 40vw;
+    max-height: 80vh;
+    height: auto;
+    object-fit: contain;
+}
+
+.before-after_wrapper {
+    margin: 1rem 0;
+}
+
+.before-after_container {
+    position: relative;
+    max-width: 40vw;
+    /* or whatever you had */
+    margin: 0 auto;
+}
+
+/* Both canvases stretch full-width, but only #baAfter is absolute */
+.before-after_container canvas {
     display: block;
+    width: 100%;
+    height: auto;
+}
+
+#baBefore {
+    position: relative;
+    /* normal flow */
+    z-index: 1;
+}
+
+#baAfter {
+    position: absolute;
+    /* sits on top of baBefore */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    z-index: 2;
+}
+
+/* Slider floating above both */
+#baSlider {
+    position: absolute;
+    top: 0;
+    /* adjust up/down as you like */
+    left: 0;
+    width: 100%;
+    z-index: 3;
+    margin: 0;
 }

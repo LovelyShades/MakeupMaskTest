@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,17 +11,44 @@
 <body>
     <h1>3D Makeup Mask Tester</h1>
 
-    <label>
-        Face Image:
-        <input id="faceInput" type="file" accept="image/*" />
-    </label>
-    <button id="removeFaceBtn" style="display:none;">Remove Face</button>
+    <!-- TOP CONTROLS -->
+    <div class="controls-top">
+        <label>
+            Import Face Image:
+            <input id="faceInput" type="file" accept="image/*" />
+        </label>
+        <button id="removeFaceBtn" style="display:none;">Remove Face</button>
 
-    <div class="mode-controls">
-        <button id="sideBySideBtn" class="active">Side-by-Side</button>
-        <button id="beforeAfterBtn">Before/After</button>
+        <label style="margin-left:1rem;">
+            Import Mask PNG:
+            <input id="maskInput" type="file" accept="image/png" />
+        </label>
+        <button id="removeMaskBtn" style="display:none; margin-left:.5rem;">Remove Mask</button>
     </div>
 
+    <!-- GO BUTTON -->
+    <div class="controls-go" style="margin:1rem 0;">
+        <button id="goBtn">Apply Mask</button>
+    </div>
+
+    <!-- SHOW MESH TOGGLE -->
+    <div class="controls-toggle" style="margin-bottom:1rem;">
+        <label>
+            <input type="checkbox" id="meshToggle" checked />
+            Show Mesh Overlay
+        </label>
+    </div>
+
+    <!-- MODE BUTTONS AND CLEAR ALL -->
+    <div class="controls-bottom">
+        <div class="mode-controls" style="display:inline-block; margin-right:1rem;">
+            <button id="sideBySideBtn" class="active">Side-by-Side</button>
+            <button id="beforeAfterBtn">Before/After</button>
+        </div>
+        <button id="clearAllBtn">Clear All</button>
+    </div>
+
+    <!-- CANVAS LAYOUT -->
     <div class="canvas_container">
         <canvas id="previewCanvas" class="canvas"></canvas>
         <canvas id="previewCanvas2" class="canvas"></canvas>
@@ -35,23 +61,6 @@
             <input type="range" id="baSlider" min="0" max="100" value="50" />
         </div>
     </div>
-
-    <label>
-        Mask PNG:
-        <input id="maskInput" type="file" accept="image/png" />
-    </label>
-    <button id="removeMaskBtn" style="display:none; margin-left:1rem;">
-        Remove Mask
-    </button>
-
-    <label style="margin-left:1rem;">
-        <input type="checkbox" id="meshToggle" checked />
-        Show Mesh Overlay
-    </label>
-
-    <br />
-    <button id="goBtn">Go</button>
-    <button id="clearAllBtn">Clear All</button>
 
     <div id="three"></div>
 

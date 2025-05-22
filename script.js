@@ -2,17 +2,18 @@
 "use strict";
 
 // State
-let faceMeshModel,
-    triangles = [],
-    uvCoords = [],
-    keypoints2D = [],
-    imgDims = {},
-    faceImage = null,   // Data-URL
-    maskImage = null,   // Data-URL
-    showWireframe = true;
+let faceMeshModel;
+let triangles = [];
+let uvCoords = [];
+let keypoints2D = [];
+let imgDims = {};
+let faceImage = null;    // Data-URL of face
+let maskImage = null;    // Data-URL of mask
+let showWireframe = true;
+let continueRendering = false;  // controls the Three.js loop
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ---- DOM REFS ----
+document.addEventListener("DOMContentLoaded", () => {
+    // ---- DOM Refs ----
     const faceInput = document.getElementById("faceInput");
     const removeFaceBtn = document.getElementById("removeFaceBtn");
     const maskInput = document.getElementById("maskInput");
@@ -29,128 +30,97 @@ document.addEventListener('DOMContentLoaded', () => {
     const baBefore = document.getElementById("baBefore");
     const baAfter = document.getElementById("baAfter");
     const baSlider = document.getElementById("baSlider");
+    const threeDiv = document.getElementById("three");
 
     const ctx = previewCanvas.getContext("2d");
     const ctx2 = previewCanvas2.getContext("2d");
     const baCtx = baBefore.getContext("2d");
     const baCtx2 = baAfter.getContext("2d");
 
-    // ---- HELPER: resize a mask image to canvas size ----
+    // ---- Helpers ----
     function resizeImageToMatch(img, w, h) {
         return new Promise(resolve => {
             const c = document.createElement("canvas");
             c.width = w; c.height = h;
-            const cctx = c.getContext("2d");
-            cctx.drawImage(img, 0, 0, w, h);
+            c.getContext("2d").drawImage(img, 0, 0, w, h);
             c.toBlob(blob => {
                 const r = new Image();
                 const url = URL.createObjectURL(blob);
-                r.onload = () => {
-                    URL.revokeObjectURL(url);
-                    resolve(r);
-                };
+                r.onload = () => { URL.revokeObjectURL(url); resolve(r); };
                 r.src = url;
             }, "image/png");
         });
     }
-
-    // ---- LOCALSTORAGE HELPERS ----
-    const saveFace = dataURL => localStorage.setItem('faceData', dataURL);
-    const saveMask = dataURL => localStorage.setItem('maskData', dataURL);
-    const saveWire = v => localStorage.setItem('showWireframe', v);
-    const saveSlider = v => localStorage.setItem('baSlider', v);
-    const saveView = m => localStorage.setItem('viewMode', m);
+    const saveFace = d => localStorage.setItem("faceData", d);
+    const saveMask = d => localStorage.setItem("maskData", d);
+    const saveWire = v => localStorage.setItem("showWireframe", v);
+    const saveSlider = v => localStorage.setItem("baSlider", v);
+    const saveView = m => localStorage.setItem("viewMode", m);
     const clearAllLS = () => {
-        localStorage.removeItem('faceData');
-        localStorage.removeItem('maskData');
-        localStorage.removeItem('showWireframe');
-        localStorage.removeItem('baSlider');
-        localStorage.removeItem('viewMode');
+        ["faceData", "maskData", "showWireframe", "baSlider", "viewMode"]
+            .forEach(k => localStorage.removeItem(k));
     };
 
-    // ---- RESTORE on load (called once model is ready) ----
+    // ---- Restore (without view toggle here) ----
     function restoreState() {
-        // Face
-        const fdata = localStorage.getItem('faceData');
-        if (fdata) {
-            faceImage = fdata;
-            drawFaceFromDataURL(fdata);
-        }
-
-        // Mask
-        const mdata = localStorage.getItem('maskData');
-        if (mdata) {
-            maskImage = mdata;
+        const f = localStorage.getItem("faceData");
+        if (f) { faceImage = f; drawFaceFromDataURL(f); }
+        const m = localStorage.getItem("maskData");
+        if (m) {
+            maskImage = m;
             maskInput.style.display = "none";
             removeMaskBtn.style.display = "inline-block";
         }
-
-        // Wireframe toggle
-        const wf = localStorage.getItem('showWireframe');
+        const wf = localStorage.getItem("showWireframe");
         if (wf !== null) {
-            showWireframe = wf === 'true';
+            showWireframe = wf === "true";
             meshToggle.checked = showWireframe;
         }
-
-        // Before/After slider
-        const sv = localStorage.getItem('baSlider');
+        const sv = localStorage.getItem("baSlider");
         if (sv !== null) {
             baSlider.value = sv;
             baAfter.style.clipPath = `inset(0 ${100 - sv}% 0 0)`;
         }
-
-        // View mode
-        const vm = localStorage.getItem('viewMode');
-        if (vm === 'before') beforeAfterBtn.click();
-        else sideBySideBtn.click();
-
-        // If both face & mask loaded, auto-overlay
-        if (faceImage && maskImage) {
-            goBtn.click();
-        }
+        if (faceImage && maskImage) goBtn.click();
     }
 
-    // ---- INIT ml5 FaceMesh ----
+    // ---- Init FaceMesh ----
     if (ml5?.faceMesh) {
         faceMeshModel = ml5.faceMesh({ maxFaces: 1 }, () => {
             triangles = faceMeshModel.getTriangles();
             uvCoords = faceMeshModel.getUVCoords();
-            restoreState();   // now that model is ready, restore any saved images
+            restoreState();
         });
     }
 
-    // ---- DRAW FACE & RUN DETECTION ----
+    // ---- Draw Face + Detect ----
     function drawFaceFromDataURL(dataURL) {
-        const img = new Image();
-        img.src = dataURL;
+        const img = new Image(); img.src = dataURL;
         img.onload = () => {
             faceInput.style.display = "none";
             removeFaceBtn.style.display = "inline-block";
 
-            // size canvases
             const [w0, h0] = [img.naturalWidth, img.naturalHeight];
             imgDims = { width: w0, height: h0 };
             const dispW = previewCanvas.parentElement.clientWidth;
             const dispH = dispW * (h0 / w0);
+
             [previewCanvas, previewCanvas2, baBefore, baAfter].forEach(c => {
                 c.width = dispW; c.height = dispH;
-                c.style.width = dispW + 'px';
-                c.style.height = dispH + 'px';
+                c.style.width = dispW + "px";
+                c.style.height = dispH + "px";
             });
 
-            // draw into preview & before
             [[previewCanvas, ctx], [baBefore, baCtx]].forEach(([c, ct]) => {
                 ct.clearRect(0, 0, c.width, c.height);
                 ct.drawImage(img, 0, 0, c.width, c.height);
             });
 
-            // detect mesh
             faceMeshModel.detect(previewCanvas, results => {
                 if (!results.length) return alert("No face detected on reload.");
                 keypoints2D = results[0].keypoints.map(p => [p.x, p.y, p.z || 0]);
-                ctx.fillStyle = "red";
-                ctx.strokeStyle = "lime";
-                ctx.lineWidth = 1;
+
+                ctx.fillStyle = "red"; ctx.strokeStyle = "lime"; ctx.lineWidth = 1;
                 keypoints2D.forEach(([x, y]) => ctx.fillRect(x - 2, y - 2, 4, 4));
                 triangles.forEach(tri => {
                     const [a, b, c2] = tri.map(i => keypoints2D[i]);
@@ -161,11 +131,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.closePath();
                     ctx.stroke();
                 });
+
+                const vm = localStorage.getItem("viewMode");
+                if (vm === "before") beforeAfterBtn.click();
+                else sideBySideBtn.click();
+
+                const sv2 = localStorage.getItem("baSlider");
+                const sliderVal = sv2 !== null ? sv2 : baSlider.value;
+                baSlider.value = sliderVal;
+                baAfter.style.clipPath = `inset(0 ${100 - sliderVal}% 0 0)`;
             });
         };
     }
 
-    // ---- FACE UPLOAD / REMOVE ----
+    // ---- Face Upload/Remove ----
     faceInput.addEventListener("change", () => {
         const file = faceInput.files[0];
         if (!file) return;
@@ -183,9 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
         faceInput.value = ""; faceInput.style.display = "inline-block";
         removeFaceBtn.style.display = "none";
         clearAllLS();
+        continueRendering = false;
+        threeDiv.innerHTML = "";
     });
 
-    // ---- MASK UPLOAD / REMOVE ----
+    // ---- Mask Upload/Remove ----
     maskInput.addEventListener("change", () => {
         const file = maskInput.files[0];
         if (!file) return;
@@ -193,53 +174,55 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = () => {
             maskImage = reader.result;
             saveMask(maskImage);
-
             maskInput.style.display = "none";
             removeMaskBtn.style.display = "inline-block";
             [ctx2, baCtx2].forEach(ct => ct.clearRect(0, 0, ct.canvas.width, ct.canvas.height));
+            goBtn.click();  // auto-apply
         };
         reader.readAsDataURL(file);
     });
     removeMaskBtn.addEventListener("click", () => {
         maskImage = null;
-        localStorage.removeItem('maskData');
+        localStorage.removeItem("maskData");
         maskInput.value = "";
         maskInput.style.display = "inline-block";
         removeMaskBtn.style.display = "none";
         [ctx2, baCtx2].forEach(ct => ct.clearRect(0, 0, ct.canvas.width, ct.canvas.height));
+        continueRendering = false;
+        threeDiv.innerHTML = "";
     });
 
-    // ---- MESH TOGGLE ----
+    // ---- Mesh Toggle ----
     meshToggle.addEventListener("change", () => {
         showWireframe = meshToggle.checked;
         saveWire(showWireframe);
         if (faceImage && maskImage) goBtn.click();
     });
 
-    // ---- BEFORE/AFTER SLIDER ----
+    // ---- Slider ----
     baSlider.addEventListener("input", () => {
         const v = baSlider.value;
         baAfter.style.clipPath = `inset(0 ${100 - v}% 0 0)`;
         saveSlider(v);
     });
 
-    // ---- VIEW MODE ----
+    // ---- View Mode Buttons ----
     sideBySideBtn.addEventListener("click", () => {
         canvasContainer.style.display = "flex";
         beforeAfterWrap.style.display = "none";
         sideBySideBtn.classList.add("active");
         beforeAfterBtn.classList.remove("active");
-        saveView('side');
+        saveView("side");
     });
     beforeAfterBtn.addEventListener("click", () => {
         canvasContainer.style.display = "none";
         beforeAfterWrap.style.display = "block";
         beforeAfterBtn.classList.add("active");
         sideBySideBtn.classList.remove("active");
-        saveView('before');
+        saveView("before");
     });
 
-    // ---- GO BUTTON ----
+    // ---- Go Button ----
     goBtn.addEventListener("click", () => {
         if (!faceImage || !maskImage) return;
         const W = previewCanvas.width, H = previewCanvas.height;
@@ -259,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ---- RENDER WITH THREE.JS ----
+    // ---- Three.js Render ----
     function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFile }, drawCtx) {
         const c = drawCtx.canvas;
         c.width = width; c.height = height;
@@ -271,43 +254,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const scene = new THREE.Scene();
         scene.background = null;
+        // create camera here
+        const camera = new THREE.OrthographicCamera(0, width, height, 0, -1000, 1000);
+        camera.position.z = 1;
 
-        // BG
-        const bgImg = new Image();
-        bgImg.src = bgFile;
+        // background plane
+        const bgImg = new Image(); bgImg.src = bgFile;
         bgImg.onload = () => {
-            const tex = new THREE.Texture(bgImg);
-            tex.needsUpdate = true;
-            const geo = new THREE.PlaneGeometry(width, height);
-            const mat = new THREE.MeshBasicMaterial({ map: tex });
-            const mesh = new THREE.Mesh(geo, mat);
+            const tex = new THREE.Texture(bgImg); tex.needsUpdate = true;
+            const mesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(width, height),
+                new THREE.MeshBasicMaterial({ map: tex })
+            );
             mesh.position.set(width / 2, height / 2, -1);
             scene.add(mesh);
         };
 
-        // GEOMETRY
+        // face geometry
         const geom = new THREE.BufferGeometry();
-        geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(keypoints.flat()), 3));
+        geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array(keypoints.flat()), 3));
         geom.setIndex(new THREE.BufferAttribute(new Uint16Array(tris.flat()), 1));
         geom.computeVertexNormals();
-        geom.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv.flat()), 2));
+        geom.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uv.flat()), 2));
 
-        // MASK + WIREFRAME
+        // mask + optional wireframe
         (async () => {
-            const maskImg = new Image();
-            maskImg.src = maskFile;
+            const maskImg = new Image(); maskImg.src = maskFile;
             maskImg.onload = async () => {
                 const resized = await resizeImageToMatch(maskImg, width, height);
                 const tex2 = new THREE.CanvasTexture(resized);
-                tex2.format = THREE.RGBAFormat;
-                tex2.flipY = false;
-                tex2.minFilter = THREE.LinearFilter;
-                tex2.magFilter = THREE.LinearFilter;
+                tex2.format = THREE.RGBAFormat; tex2.flipY = false;
+                tex2.minFilter = THREE.LinearFilter; tex2.magFilter = THREE.LinearFilter;
 
                 const mat2 = new THREE.MeshBasicMaterial({
                     map: tex2, transparent: true, alphaTest: 0.01,
-                    depthTest: false, blending: THREE.NormalBlending,
-                    side: THREE.DoubleSide
+                    depthTest: false, blending: THREE.NormalBlending, side: THREE.DoubleSide
                 });
                 const maskMesh = new THREE.Mesh(geom, mat2);
                 maskMesh.renderOrder = 1;
@@ -316,9 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scene.add(maskMesh);
 
                 if (showWireframe) {
-                    const wfMat = new THREE.MeshBasicMaterial({
-                        wireframe: true, transparent: true, depthTest: false
-                    });
+                    const wfMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, depthTest: false });
                     const wfMesh = new THREE.Mesh(geom, wfMat);
                     wfMesh.renderOrder = 2;
                     wfMesh.scale.y = -1;
@@ -326,9 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     scene.add(wfMesh);
                 }
 
-                const camera = new THREE.OrthographicCamera(0, width, height, 0, -1000, 1000);
-                camera.position.z = 1;
+                continueRendering = true;
                 (function animate() {
+                    if (!continueRendering) return;
                     requestAnimationFrame(animate);
                     renderer.render(scene, camera);
                     drawCtx.clearRect(0, 0, width, height);
@@ -338,15 +317,21 @@ document.addEventListener('DOMContentLoaded', () => {
         })();
     }
 
-    // ---- CLEAR ALL ----
+    // ---- Clear All ----
     clearAllBtn.addEventListener("click", () => {
+        continueRendering = false;
+        threeDiv.innerHTML = "";
+
         [previewCanvas, previewCanvas2, baBefore, baAfter].forEach(c => {
-            c.width = c.width; c.height = c.height;
+            c.width = c.width;
+            c.height = c.height;
         });
+
         removeFaceBtn.click();
         removeMaskBtn.click();
         baSlider.value = 50;
         baAfter.style.clipPath = "inset(0 50% 0 0)";
         sideBySideBtn.click();
     });
+
 });
