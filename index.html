@@ -1,0 +1,63 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>ml5 FaceMesh + 3D Mask Overlay</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>3D Makeup Mask Tester</h1>
+
+    <label>
+        Face Image:
+        <input id="faceInput" type="file" accept="image/*" />
+    </label>
+    <button id="removeFaceBtn" style="display:none;">Remove Face</button>
+
+    <div class="mode-controls">
+        <button id="sideBySideBtn" class="active">Side-by-Side</button>
+        <button id="beforeAfterBtn">Before/After</button>
+    </div>
+
+    <div class="canvas_container">
+        <canvas id="previewCanvas" class="canvas"></canvas>
+        <canvas id="previewCanvas2" class="canvas"></canvas>
+    </div>
+
+    <div class="before-after_wrapper" style="display:none;">
+        <div class="before-after_container">
+            <canvas id="baBefore" class="canvas"></canvas>
+            <canvas id="baAfter" class="canvas overlay"></canvas>
+            <input type="range" id="baSlider" min="0" max="100" value="50" />
+        </div>
+    </div>
+
+    <label>
+        Mask PNG:
+        <input id="maskInput" type="file" accept="image/png" />
+    </label>
+    <button id="removeMaskBtn" style="display:none; margin-left:1rem;">
+        Remove Mask
+    </button>
+
+    <label style="margin-left:1rem;">
+        <input type="checkbox" id="meshToggle" checked />
+        Show Mesh Overlay
+    </label>
+
+    <br />
+    <button id="goBtn">Go</button>
+    <button id="clearAllBtn">Clear All</button>
+
+    <div id="three"></div>
+
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
