@@ -1,0 +1,24 @@
+// --- domRefs.js ---
+export const refs = {
+    faceInput: document.getElementById("faceInput"),
+    removeFaceBtn: document.getElementById("removeFaceBtn"),
+    maskInput: document.getElementById("maskInput"),
+    removeMaskBtn: document.getElementById("removeMaskBtn"),
+    meshToggle: document.getElementById("meshToggle"),
+    goBtn: document.getElementById("goBtn"),
+    clearAllBtn: document.getElementById("clearAllBtn"),
+    sideBySideBtn: document.getElementById("sideBySideBtn"),
+    beforeAfterBtn: document.getElementById("beforeAfterBtn"),
+    canvasContainer: document.querySelector(".canvas_container"),
+    beforeAfterWrap: document.querySelector(".before-after_wrapper"),
+    previewCanvas: document.getElementById("previewCanvas"),
+    previewCanvas2: document.getElementById("previewCanvas2"),
+    baBefore: document.getElementById("baBefore"),
+    baAfter: document.getElementById("baAfter"),
+    baSlider: document.getElementById("baSlider"),
+    threeDiv: document.getElementById("three"),
+    get ctx() { return this.previewCanvas.getContext("2d"); },
+    get ctx2() { return this.previewCanvas2.getContext("2d"); },
+    get baCtx() { return this.baBefore.getContext("2d"); },
+    get baCtx2() { return this.baAfter.getContext("2d"); }
+};
