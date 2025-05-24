@@ -1,4 +1,4 @@
-# 💼 Project Showcase – 3D Mask Debugging 
+# 💼 Project Showcase – 3D Mask Debugging UI
 
 This project is a **public showcase** of our work and technical skills. It is intended for educational, portfolio, and demonstration purposes only.
 
