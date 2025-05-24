@@ -5,9 +5,11 @@
     border: 3px solid #0000004b;
     background-color: #00000062;
     border-radius: 1rem;
-    width: 100%;
-    max-width: 60vw;
-    max-height: 50vh;
+    max-width: 550px;
+    max-height: 550px;
+    /* force square: */
+    aspect-ratio: 1 / 1;
+    /* remove max-height so CSS can honor the aspect ratio */
     object-fit: cover;
 }
 
