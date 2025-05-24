@@ -7,5 +7,6 @@ export const state = {
     keypoints2D: [],
     imgDims: {},
     showWireframe: true,
-    continueRendering: false
+    continueRendering: false,
+    maskTint: '#ffffff',
 };

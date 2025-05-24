@@ -19,6 +19,8 @@ export const localStore = {
     saveWire: v => localStorage.setItem("showWireframe", v),
     saveSlider: v => localStorage.setItem("baSlider", v),
     saveView: m => localStorage.setItem("viewMode", m),
+    saveTint: v => localStorage.setItem('maskTint', v),
+    restoreTint: () => localStorage.getItem('maskTint') || '#ffffff',
     clearAllLS: () => ["faceData", "maskData", "showWireframe", "baSlider", "viewMode"]
         .forEach(k => localStorage.removeItem(k))
 };

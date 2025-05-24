@@ -10,6 +10,7 @@ import './events/slider.js';
 import './events/viewMode.js';
 import './events/applyMaskButton.js';
 import './events/clearAll.js';
+import './events/tintHandlers.js';
 
 window.addEventListener("DOMContentLoaded", async () => {
     // 1. Force TF.js to use WebGL (avoids the WebGPU canvas error)

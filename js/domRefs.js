@@ -20,5 +20,6 @@ export const refs = {
     get ctx() { return this.previewCanvas.getContext("2d"); },
     get ctx2() { return this.previewCanvas2.getContext("2d"); },
     get baCtx() { return this.baBefore.getContext("2d"); },
-    get baCtx2() { return this.baAfter.getContext("2d"); }
+    get baCtx2() { return this.baAfter.getContext("2d"); },
+    maskTintPicker: document.getElementById('maskTintPicker'),
 };

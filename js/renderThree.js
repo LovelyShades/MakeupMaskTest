@@ -1,42 +1,60 @@
-// --- renderThree.js ---
+// --- js/renderThree.js ---
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
 import { resizeImageToMatch } from './helpers.js';
 import { state } from './state.js';
 
+/**  
+ * Stops the current render loop and clears out the Three.js canvas.  
+ */
+export function disposeThree() {
+    state.continueRendering = false;
+    const container = document.getElementById('three');
+    if (container) container.innerHTML = '';
+}
+
 export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFile }, drawCtx) {
-    // prepare 2D canvas
+    // 1) Tear down any prior renderer
+    disposeThree();
+
+    // 2) Prepare the 2D canvas  
     const c = drawCtx.canvas;
     c.width = width;
     c.height = height;
     drawCtx.clearRect(0, 0, width, height);
 
-    // Create WebGL renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, preserveDrawingBuffer: true });
+    // 3) Create WebGL renderer with antialiasing enabled  
+    const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        preserveDrawingBuffer: true,
+        antialias: true
+    });
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0);
-    renderer.toneMapping = THREE.NoToneMapping;
-    renderer.outputEncoding = THREE.LinearEncoding;
-    renderer.toneMappingExposure = 1;
 
-    // Scene & camera
+    // match 2D-canvas gamma
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; // for r152+
+
+    // 4) Scene & camera  
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(0, width, height, 0, -1000, 1000);
     camera.position.z = 1;
 
-    // ─── LIGHTING ─────────────────────────────────────────
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));              // soft fill
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.6);    // main highlight
+    // 5) Lighting  
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.6);
     keyLight.position.set(0, 1, 1);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.2);   // subtle shadow fill
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.2);
     fillLight.position.set(0, -1, 1);
     scene.add(fillLight);
 
-    // ─── BACKGROUND PLANE ──────────────────────────────────
+    // 6) Background plane (sRGB decode)  
     const bgImg = new Image();
     bgImg.src = bgFile;
     bgImg.onload = () => {
         const tex = new THREE.Texture(bgImg);
+        tex.encoding = THREE.sRGBEncoding;
         tex.needsUpdate = true;
         const mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(width, height),
@@ -46,51 +64,55 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
         scene.add(mesh);
     };
 
-    // ─── FACE GEOMETRY ────────────────────────────────────
+    // 7) Face geometry  
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(keypoints.flat()), 3));
     geom.setIndex(new THREE.BufferAttribute(new Uint16Array(tris.flat()), 1));
     geom.computeVertexNormals();
     geom.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv.flat()), 2));
 
-    // ─── MAKEUP MESH ─────────────────────────────────────
+    // 8) Makeup mesh (no blur, with mipmaps & anisotropy)  
     (async () => {
         const maskImg = new Image();
         maskImg.src = maskFile;
         maskImg.onload = async () => {
+            // resize
             const resized = await resizeImageToMatch(maskImg, width, height);
+
+            // create CanvasTexture
             const tex2 = new THREE.CanvasTexture(resized);
             tex2.format = THREE.RGBAFormat;
             tex2.flipY = false;
-            tex2.minFilter = THREE.LinearFilter;
+            tex2.generateMipmaps = true;
+            tex2.minFilter = THREE.LinearMipmapLinearFilter;
             tex2.magFilter = THREE.LinearFilter;
+            tex2.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            tex2.needsUpdate = true;
 
-            // Use a lit, PBR material
+            // material with tint + normal blending
             const mat2 = new THREE.MeshStandardMaterial({
                 map: tex2,
+                color: new THREE.Color(state.maskTint),
                 transparent: true,
+                opacity: 0.8,
                 alphaTest: 0.01,
                 depthTest: false,
-                blending: THREE.MultiplyBlending,  // darken shadows; try AdditiveBlending for highlights
+                blending: THREE.NormalBlending,
                 side: THREE.DoubleSide,
                 roughness: 0.7,
                 metalness: 0.0
             });
 
+            // setup mesh
             const maskMesh = new THREE.Mesh(geom, mat2);
             maskMesh.renderOrder = 1;
-
-            // flip vertically to match canvas coords
             maskMesh.scale.y = -1;
             maskMesh.position.y = height - maskMesh.position.y;
-
-            // ── DEPTH OFFSET ── use average z to push mesh onto face surface
             const avgZ = keypoints.reduce((sum, p) => sum + p[2], 0) / keypoints.length;
             maskMesh.position.z = avgZ * 0.5;
-
             scene.add(maskMesh);
 
-            // ─── OPTIONAL: wireframe overlay ─────────────────
+            // optional wireframe
             if (state.showWireframe) {
                 const wfMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, depthTest: false });
                 const wfMesh = new THREE.Mesh(geom, wfMat);
@@ -101,7 +123,7 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
                 scene.add(wfMesh);
             }
 
-            // ─── RENDER LOOP ────────────────────────────────
+            // 9) Render loop
             state.continueRendering = true;
             (function animate() {
                 if (!state.continueRendering) return;

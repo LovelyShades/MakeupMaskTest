@@ -9,6 +9,8 @@ export function restoreState() {
     if (f) {
         state.faceImage = f;
         drawFaceFromDataURL(f);
+        state.maskTint = localStore.restoreTint();
+        refs.maskTintPicker.value = state.maskTint;
     }
 
     const m = localStorage.getItem("maskData");
