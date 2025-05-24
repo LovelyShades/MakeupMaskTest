@@ -11,6 +11,9 @@ export function restoreState() {
         drawFaceFromDataURL(f);
         state.maskTint = localStore.restoreTint();
         refs.maskTintPicker.value = state.maskTint;
+        state.maskOpacity = localStore.restoreOpacity();
+        refs.maskOpacityPicker.value = state.maskOpacity;
+
     }
 
     const m = localStorage.getItem("maskData");

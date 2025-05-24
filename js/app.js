@@ -1,7 +1,7 @@
 // --- app.js ---
 import { state } from './state.js';
 import { restoreState } from './restore.js';
-
+import './events/opacityHandlers.js';
 // wire up all event handlers
 import './events/faceHandlers.js';
 import './events/maskHandlers.js';

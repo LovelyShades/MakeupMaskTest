@@ -22,4 +22,5 @@ export const refs = {
     get baCtx() { return this.baBefore.getContext("2d"); },
     get baCtx2() { return this.baAfter.getContext("2d"); },
     maskTintPicker: document.getElementById('maskTintPicker'),
+    maskOpacityPicker: document.getElementById('maskOpacityPicker'),
 };

@@ -9,4 +9,5 @@ export const state = {
     showWireframe: true,
     continueRendering: false,
     maskTint: '#ffffff',
+    maskOpacity: 0.85
 };

@@ -21,6 +21,8 @@ export const localStore = {
     saveView: m => localStorage.setItem("viewMode", m),
     saveTint: v => localStorage.setItem('maskTint', v),
     restoreTint: () => localStorage.getItem('maskTint') || '#ffffff',
+    saveOpacity: v => localStorage.setItem('maskOpacity', v),
+    restoreOpacity: () => parseFloat(localStorage.getItem('maskOpacity')) || 0.85,
     clearAllLS: () => ["faceData", "maskData", "showWireframe", "baSlider", "viewMode"]
         .forEach(k => localStorage.removeItem(k))
 };
