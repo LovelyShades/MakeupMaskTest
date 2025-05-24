@@ -2,12 +2,13 @@
 .canvas,
 #baBefore,
 #baAfter {
-    border: 1px solid #ccc;
+    border: 3px solid #0000004b;
+    background-color: #00000062;
     border-radius: 1rem;
     width: 100%;
-    max-width: 40vw;
-    max-height: 80vh;
-    object-fit: contain;
+    max-width: 60vw;
+    max-height: 50vh;
+    object-fit: cover;
 }
 
 #baBefore {
