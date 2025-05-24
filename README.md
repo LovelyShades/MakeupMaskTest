@@ -1,4 +1,4 @@
-# 💼 Project Showcase – FACIAL LANDMARK RECOGNITION
+# 💼 Project Showcase – 3D Mask Debugging 
 
 This project is a **public showcase** of our work and technical skills. It is intended for educational, portfolio, and demonstration purposes only.
 
@@ -7,7 +7,7 @@ This project is a **public showcase** of our work and technical skills. It is in
 **Unauthorized commercial use, redistribution, or modification of this code is strictly prohibited.**  
 All rights are reserved to the original author.
 
-> 🔒 While the repository is public for hiring and educational review, the contents remain the intellectual property of [Your Name]. You may view the code, but not use it in your own projects unless explicit permission is granted.
+> 🔒 While the repository is public for hiring and educational review, the contents remain the intellectual property of Alanna Matundan & Luke Lyons. You may view the code, but not use it in your own projects unless explicit permission is granted.
 
 ## 📄 License
 
