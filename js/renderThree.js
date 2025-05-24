@@ -82,6 +82,9 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
             tex2.minFilter = THREE.LinearMipmapLinearFilter;
             tex2.magFilter = THREE.LinearFilter;
             tex2.anisotropy = currentRenderer.capabilities.getMaxAnisotropy();
+
+            // **disable automatic Y-flip** so the mask isn’t flipped twice
+            tex2.flipY = false;
             tex2.needsUpdate = true;
 
             // physical material for mask
@@ -91,13 +94,13 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
                 transparent: true,
                 opacity: state.maskOpacity,
                 alphaTest: 0.01,
-                blending: THREE.MultiplyBlending,
+                blending: THREE.MultiplyBlending, //Normal, Multiply, Additive, Subtractive, Custom
                 side: THREE.DoubleSide,
-                roughness: 0.7,
-                metalness: 0.0,
-                clearcoat: 0.2,
-                clearcoatRoughness: 0.5,
-                sheen: 0.15,
+                roughness: 1.0,
+                metalness: 0.2,
+                clearcoat: 0.0,
+                clearcoatRoughness: 1.0,
+                sheen: 0.0,
                 sheenColor: new THREE.Color(0xffffff),
             });
 
