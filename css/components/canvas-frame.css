@@ -6,8 +6,8 @@
     background-color: #00000062;
     border-radius: 1rem;
     width: 100%;
-    max-width: 550px;
-    max-height: 550px;
+    max-width: 620px;
+    max-height: 60vh;
     /* force square: */
     aspect-ratio: 1 / 1;
     /* remove max-height so CSS can honor the aspect ratio */

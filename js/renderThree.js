@@ -27,31 +27,32 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
     c.height = height;
     drawCtx.clearRect(0, 0, width, height);
 
-    // create renderer (keep alpha:true so we can composite later if needed)
+    // create renderer (keep alpha:true so mask stays transparent)
     currentRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     currentRenderer.setSize(width, height);
-    currentRenderer.setClearColor(0x000000, 0);             // fully transparent clear
+    currentRenderer.setClearColor(0x000000, 0); // fully transparent clear
     currentRenderer.toneMapping = THREE.NoToneMapping;
     currentRenderer.outputColorSpace = THREE.SRGBColorSpace;
-
-    // don’t append currentRenderer.domElement — we draw offscreen
 
     // scene & camera
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(0, width, height, 0, -1000, 1000);
     camera.position.z = 1;
 
-    // 1) **Load your face photo as the scene background**:
+    // load background image
     const bgImg = new Image();
     bgImg.src = bgFile;
+    bgImg.crossOrigin = 'anonymous';
+
+    // also set as scene.background so before/after mode still works
     bgImg.onload = () => {
         const tex = new THREE.Texture(bgImg);
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.needsUpdate = true;
-        scene.background = tex;     // **this paints your face under everything**
+        scene.background = tex;
     };
 
-    // lighting (same as before)
+    // lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.6);
     keyLight.position.set(0, 1, 1);
@@ -60,17 +61,18 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
     fillLight.position.set(0, -1, 1);
     scene.add(fillLight);
 
-    // build your face‐mesh geometry (same as before)
+    // build face‐mesh geometry
     const geom = new THREE.BufferGeometry();
     geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(keypoints.flat()), 3));
     geom.setIndex(new THREE.BufferAttribute(new Uint16Array(tris.flat()), 1));
     geom.computeVertexNormals();
     geom.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv.flat()), 2));
 
-    // 2) draw your mask on top
+    // load mask and start render loop
     (async () => {
         const maskImg = new Image();
         maskImg.src = maskFile;
+        maskImg.crossOrigin = 'anonymous';
         maskImg.onload = async () => {
             const resized = await resizeImageToMatch(maskImg, width, height);
 
@@ -82,7 +84,7 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
             tex2.anisotropy = currentRenderer.capabilities.getMaxAnisotropy();
             tex2.needsUpdate = true;
 
-            // material (blending=Multiply is fine, but can use NormalBlending)
+            // physical material for mask
             const mat2 = new THREE.MeshPhysicalMaterial({
                 map: tex2,
                 color: new THREE.Color(state.maskTint),
@@ -107,9 +109,13 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
             maskMesh.position.z = avgZ * 0.5;
             scene.add(maskMesh);
 
-            // optional wireframe…
+            // optional wireframe
             if (state.showWireframe) {
-                const wfMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, depthTest: false });
+                const wfMat = new THREE.MeshBasicMaterial({
+                    wireframe: true,
+                    transparent: true,
+                    depthTest: false
+                });
                 const wfMesh = new THREE.Mesh(geom, wfMat);
                 wfMesh.renderOrder = 2;
                 wfMesh.scale.y = -1;
@@ -118,13 +124,22 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
                 scene.add(wfMesh);
             }
 
-            // 3) render loop
+            // render loop
             state.continueRendering = true;
             (function animate() {
                 if (!state.continueRendering) return;
                 animationId = requestAnimationFrame(animate);
+
+                // render 3D scene to transparent WebGL canvas
                 currentRenderer.render(scene, camera);
+
+                // composite manually onto the 2D canvas:
                 drawCtx.clearRect(0, 0, width, height);
+                // 1) draw the original photo
+                if (bgImg.complete) {
+                    drawCtx.drawImage(bgImg, 0, 0, width, height);
+                }
+                // 2) draw the GL mask over it
                 drawCtx.drawImage(currentRenderer.domElement, 0, 0);
             })();
         };
