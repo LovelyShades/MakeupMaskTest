@@ -5,6 +5,7 @@
     border: 3px solid #0000004b;
     background-color: #00000062;
     border-radius: 1rem;
+    width: 100%;
     max-width: 550px;
     max-height: 550px;
     /* force square: */
@@ -29,4 +30,5 @@
     display: block;
     width: 100%;
     height: auto;
+    max-height: 550px;
 }
