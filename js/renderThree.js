@@ -118,10 +118,10 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
     };
 
     // Best realistic face filter lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
     keyLight.position.set(0.5, 1, 1);
     scene.add(keyLight);
 
@@ -213,6 +213,7 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
                 wfMesh.position.y = height - wfMesh.position.y;
                 wfMesh.position.z = maskMesh.position.z + 0.01;
                 scene.add(wfMesh);
+
             }
 
             // render loop
