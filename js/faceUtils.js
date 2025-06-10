@@ -41,16 +41,8 @@ export function drawFaceFromDataURL(dataURL) {
             refs.ctx.strokeStyle = "lime";
             refs.ctx.lineWidth = 1;
 
-            state.keypoints2D.forEach(([x, y]) => refs.ctx.fillRect(x - 2, y - 2, 4, 4));
-            state.triangles.forEach(tri => {
-                const [a, b, c2] = tri.map(i => state.keypoints2D[i]);
-                refs.ctx.beginPath();
-                refs.ctx.moveTo(a[0], a[1]);
-                refs.ctx.lineTo(b[0], b[1]);
-                refs.ctx.lineTo(c2[0], c2[1]);
-                refs.ctx.closePath();
-                refs.ctx.stroke();
-            });
+
+
 
             const vm = localStorage.getItem("viewMode");
             if (vm === "before") refs.beforeAfterBtn.click();

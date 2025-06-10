@@ -5,6 +5,8 @@ import { localStore } from '../helpers.js';
 
 refs.meshToggle.addEventListener("change", () => {
     state.showWireframe = refs.meshToggle.checked;
+    state.showDebug = refs.meshToggle.checked; // Add this line
     localStore.saveWire(state.showWireframe);
     if (state.faceImage && state.maskImage) refs.goBtn.click();
 });
+

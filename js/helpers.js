@@ -1,3 +1,4 @@
+
 // --- helpers.js ---
 export function resizeImageToMatch(img, w, h) {
     return new Promise(resolve => {
@@ -12,6 +13,7 @@ export function resizeImageToMatch(img, w, h) {
         }, "image/png");
     });
 }
+
 
 export const localStore = {
     saveFace: d => localStorage.setItem("faceData", d),
