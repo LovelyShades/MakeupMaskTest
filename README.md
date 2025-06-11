@@ -16,7 +16,7 @@ This project is shared under a **Custom No-Use License**:
 - ❌ You may not copy, reuse, or distribute it.
 - ❌ You may not use this project as part of your own work (academic, personal, or commercial).
 
-**If you're interested in using any part of this project or collaborating, feel free to contact me: [your email or portfolio link]**
+**If you're interested in using any part of this project or collaborating, feel free to contact me: rosealanna18@gmail.com **
 
 ## 👩‍💻 Authors
 
