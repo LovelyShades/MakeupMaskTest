@@ -125,7 +125,7 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
     keyLight.position.set(0.5, 1, 1);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.01);
     fillLight.position.set(-0.5, -0.8, 1);
     scene.add(fillLight);
 
@@ -178,7 +178,7 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
                 color: new THREE.Color(state.maskTint),
                 transparent: true,
                 opacity: state.maskOpacity,
-                alphaTest: 0.01,
+                alphaTest: 0.02,
                 blending: THREE.NormalBlending,
                 side: THREE.DoubleSide,
                 roughness: 0.6,
