@@ -121,11 +121,11 @@ export function renderThree({ keypoints, tris, uv, width, height, maskFile, bgFi
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
     keyLight.position.set(0.5, 1, 1);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.01);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.1);
     fillLight.position.set(-0.5, -0.8, 1);
     scene.add(fillLight);
 
